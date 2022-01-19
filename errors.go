@@ -4,11 +4,6 @@ import (
 	"fmt"
 )
 
-type errorResponse struct {
-	Status  string `json:"status"`
-	Message string `json:"message"`
-}
-
 type Error struct {
 	Message string `json:"message"`
 }

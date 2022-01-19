@@ -3,6 +3,7 @@ package goporkbun
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"time"
@@ -89,18 +90,28 @@ func (c *Client) Do(req *http.Request, v interface{}) error {
 	return nil
 }
 
+type errorResponse struct {
+	Status  string `json:"status"`
+	Message string `json:"message"`
+}
+
 func checkResponse(resp *http.Response) error {
 	if statusCode := resp.StatusCode; statusCode >= http.StatusOK && statusCode < http.StatusBadRequest {
 		return nil
 	}
 
-	var errResp errorResponse
-	if err := json.NewDecoder(resp.Body).Decode(&errResp); err == nil {
-		return &Error{
-			Message: errResp.Message,
-		}
+	if resp.StatusCode == http.StatusNotFound {
+		return fmt.Errorf("page not found: %s", resp.Request.URL.Path)
 	}
+
+	var errResp errorResponse
+
+	err := json.NewDecoder(resp.Body).Decode(&errResp)
+	if err != nil {
+		return fmt.Errorf("could not decode error response: %s", err)
+	}
+
 	return &Error{
-		Message: "unknown error",
+		Message: errResp.Message,
 	}
 }

@@ -1,20 +1,20 @@
 package goporkbun
 
-type PingResponse struct {
+type pingResponse struct {
 	YourIP string `json:"yourIp"`
 }
 
-func (c *Client) Ping() (*PingResponse, error) {
+func (c *Client) Ping() (bool, error) {
 	req, err := c.NewRequest("POST", "/ping", c.credentials)
 	if err != nil {
-		return nil, err
+		return false, err
 	}
 
-	pingResp := &PingResponse{}
+	resp := &pingResponse{}
 
-	if err := c.Do(req, pingResp); err != nil {
-		return nil, err
+	if err := c.Do(req, resp); err != nil {
+		return false, err
 	}
 
-	return pingResp, nil
+	return true, nil
 }

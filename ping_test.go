@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-var pingResponse = `{"status":"SUCCESS","yourIp":"127.0.0.1"}`
+var pingResponseJSON = `{"status":"SUCCESS","yourIp":"127.0.0.1"}`
 
 func TestPing(t *testing.T) {
 	setup()
@@ -14,15 +14,13 @@ func TestPing(t *testing.T) {
 	defer teardown()
 
 	mux.HandleFunc("/ping", func(rw http.ResponseWriter, r *http.Request) {
-		testMethod(t, r, http.MethodPost)
+		testMethod(t, r)
 		testHeader(t, r, "Content-Type", "application/json")
-		_, err := rw.Write([]byte(pingResponse))
+		_, err := rw.Write([]byte(pingResponseJSON))
 		testErrorNil(t, err)
 	})
 
-	expectedReponse := &PingResponse{
-		YourIP: "127.0.0.1",
-	}
+	expectedReponse := true
 
 	gotResponse, err := client.Ping()
 
